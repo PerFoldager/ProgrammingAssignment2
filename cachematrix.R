@@ -63,8 +63,8 @@ cacheSolve <- function(x, ...) {
     stop("cacheSolve: Input Matrix is singular and inverse matrix cannot be calculated")
   }
 
-  ## We check to see if we already have the inversed matrix in cache
-  ## If we do we save the expensive calculation of the inversed matrix by returning the version in our cache
+  ## We check to see if we already have the inversed matrix in cache by calling getInverse in the received instance of makeCacheMatrix.
+  ## If we do an inversed matrix we save the expensive calculation of the inversed matrix by returning the version from the cache in makeCacheMatrix
   inversed_matrix <- matrix()
   inversed_matrix <- x$getInverse()
   if(!is.null(inversed_matrix)) {
@@ -72,7 +72,7 @@ cacheSolve <- function(x, ...) {
     return(inversed_matrix)
   }
   
-  ## The inversed matrix did not exist in cache. We create the inversed matrix by using solve and store the matrix in cache.
+  ## The inversed matrix did not exist in cache. We create the inversed matrix by using solve and store the inversed matrix in cache in makeCacheMatrix function instanse.
   inversed_matrix <- solve(x$get())
   x$setInverse(inversed_matrix)
   return(x$getInverse())
