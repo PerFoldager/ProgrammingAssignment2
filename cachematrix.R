@@ -1,19 +1,24 @@
 ## This file contains two main functions 
-## 1. makeCacheMatrix, which needs to be initiated first with a matrix
-## 2. cacheSolve, which calculates the inverse of the matrix used as input to makeCacheMatrix.
-##    cacheSolve requires that it is called with the function that is the result of call to makeCacheMatrix(a_matrix)
-##    mcm <- makeCacheMatrix(a_matrix)
-##    a_matrix_inverted <- cacheSolve(mcm)
+## 1. makeCacheMatrix, which needs to be initiated first with a matrix, before the function instanse of makeCacheMatrix can be used.
+## 2. cacheSolve, which calculates the inverse of the matrix that was used as input to makeCacheMatrix.
+##    cacheSolve requires that it is called with the an instanse of the makeCacheMatrix function.
+##    An function instanse is the result of call to makeCacheMatrix(a_matrix). 
+##    See example below:
+##      mcm <- makeCacheMatrix(a_matrix)
+##      a_matrix_inverted <- cacheSolve(mcm)
 ##
 
-## makeCacheMatrix holds holds a square matrix and the inverse of the matrix in cache in the enclosing environments.
+## makeCacheMatrix holds a matrix and the inverse of the matrix in cache in the enclosing environment as global variables.
+## An inverse matrix can only be created for a square non-singular matrix.
 ## The variable x holds the cached matrix and x_inverse holds the inversed matrix of x
-## makeCacheMatrix(a_matrix) initiates the object and x is stored in cache
+## makeCacheMatrix(a_matrix) initiates the object and a_matrix is stored in cache as global variable x
 
 makeCacheMatrix <- function(x = matrix()) {
   x_inverse <- NULL
 
-  ## set receives a new matrix and replace content of x and resets the inverse matrix
+  ## set receives a new matrix and replace content of x in cache and resets the inverse matrix in cache. 
+  ## The operator <<- results in creating global variable in outer lexical scope.
+  ## A global variable can maintain the state across function invocations.
   set <- function(y) {
     x <<- y
     x_inverse <<- NULL
@@ -30,7 +35,7 @@ makeCacheMatrix <- function(x = matrix()) {
   ## get the inversed matrix from cache
     getInverse <- function() x_inverse
 
-  ## declare the functions
+  ## declare the functions we will use
   list(set = set, get = get, 
        setInverse = setInverse, 
        getInverse = getInverse) 
@@ -43,10 +48,8 @@ makeCacheMatrix <- function(x = matrix()) {
 
 cacheSolve <- function(x, ...) {
   ## Return a matrix that is the inverse of 'x'
-  ## browser()
-  ## new_matrix <- x$get()
-  ## matrix_rows <- nrow(x$get())
-  ## matrix_cols <- ncol(x$get())
+  ## x must be an instanse of function makeCacheMatrix that contains the matrix we will calculate the inverse of
+  ## Be aware that x in cacheSolve is a function instanse and different from the matrix x in makeCacheMatrix 
 
   ## First we check to ensure we have a square matrix
   if (nrow(x$get()) != ncol(x$get())) {
@@ -61,6 +64,7 @@ cacheSolve <- function(x, ...) {
   }
 
   ## We check to see if we already have the inversed matrix in cache
+  ## If we do we save the expensive calculation of the inversed matrix by returning the version in our cache
   inversed_matrix <- matrix()
   inversed_matrix <- x$getInverse()
   if(!is.null(inversed_matrix)) {
