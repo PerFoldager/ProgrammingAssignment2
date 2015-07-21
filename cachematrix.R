@@ -1,15 +1,26 @@
 ## This file contains two main functions 
-## 1. makeCacheMatrix, which needs to be initiated first with a matrix, before the function instanse of makeCacheMatrix can be used.
+## 1. makeCacheMatrix, which needs to be initiated first with a matrix, before the function instanse 
+##    of makeCacheMatrix can be used. There are set & get functions inside makeCacheMatrix that
+##    are used by cacheSolve.  
 ## 2. cacheSolve, which calculates the inverse of the matrix that was used as input to makeCacheMatrix.
 ##    cacheSolve requires that it is called with the an instanse of the makeCacheMatrix function.
-##    An function instanse is the result of call to makeCacheMatrix(a_matrix). 
+##    An function instanse is the result of call to makeCacheMatrix(a_matrix). You can have 
+##    several instanses of makeCacheMatrix. They have seperate global variables.
 ##    See example below:
-##      mcm <- makeCacheMatrix(a_matrix)
-##      a_matrix_inverted <- cacheSolve(mcm)
+##      mcm1 <- makeCacheMatrix(a_matrix)
+##      a_matrix_inverted <- cacheSolve(mcm1)
+##      mcm2 <- makeCacheMatrix(b_matrix)
+##      b_matrix_inverted <- cacheSolve(mcm2)
 ##
 
-## makeCacheMatrix holds a matrix and the inverse of the matrix in cache in the enclosing environment as global variables.
+## makeCacheMatrix holds a matrix and the inverse of the matrix in cache in the enclosing environment
+## as global variables.
+## 
 ## An inverse matrix can only be created for a square non-singular matrix.
+## A singular matrix is a matrix who's determinant is zero like the below matrix 
+## testData_singular <- matrix(1:9, nrow=3,ncol=3). 
+## A square matrix is a matrix with the same number of rows and columns. 
+##
 ## The variable x holds the cached matrix and x_inverse holds the inversed matrix of x
 ## makeCacheMatrix(a_matrix) initiates the object and a_matrix is stored in cache as global variable x
 
@@ -42,29 +53,37 @@ makeCacheMatrix <- function(x = matrix()) {
 }
 
 
-## cacheSolve calculates the inverse of a matrix and stores the inversed matrix in a makeCacheMatrix object cache.
-## Input to cacheSolve is a makeCacheMatrix object, that has been initiated with a matrix
-## cacheSolve ensures that the matrix in makeCacheMatrix is square non-singular matrix, which is requirement in order to calculate the inverse matrix
+## cacheSolve calculates the inverse of a matrix and stores the inversed matrix in a makeCacheMatrix
+## object cache.
+## Input to cacheSolve is a makeCacheMatrix object, that has been initiated with a matrix.
+## cacheSolve ensures that the matrix in makeCacheMatrix is square non-singular matrix, which is 
+## requirement in order to calculate the inverse matrix
 
 cacheSolve <- function(x, ...) {
   ## Return a matrix that is the inverse of 'x'
-  ## x must be an instanse of function makeCacheMatrix that contains the matrix we will calculate the inverse of
-  ## Be aware that x in cacheSolve is a function instanse and different from the matrix x in makeCacheMatrix 
+  ## x must be an instanse of function makeCacheMatrix that contains the matrix that we 
+  ## will calculate the inverse of.
+  ## Be aware that x in cacheSolve is a function instanse and different from the matrix x 
+  ## in makeCacheMatrix. 
 
   ## First we check to ensure we have a square matrix
   if (nrow(x$get()) != ncol(x$get())) {
     stop("cacheSolve: Matrix provided is not square")
   }
 
-  ## Second we check to ensure that the received square matrix is not singular. 
+  ## Second we check to ensure that the received square matrix is not singular.
+  ## This is determined by calculating the determinant through the det(x) function. 
+  ## If the result is zero the matrix is singular.
   ## We cannot calculate the inverse of a singular matrix 
   x_det <- det(x$get())
   if (x_det == 0) {
     stop("cacheSolve: Input Matrix is singular and inverse matrix cannot be calculated")
   }
 
-  ## We check to see if we already have the inversed matrix in cache by calling getInverse in the received instance of makeCacheMatrix.
-  ## If we do an inversed matrix we save the expensive calculation of the inversed matrix by returning the version from the cache in makeCacheMatrix
+  ## We check to see if we already have the inversed matrix in cache by calling getInverse 
+  ## in the received instance of makeCacheMatrix.
+  ## If we do an inversed matrix we save the expensive calculation of the inversed matrix 
+  ## by returning the version from the cache in makeCacheMatrix.
   inversed_matrix <- matrix()
   inversed_matrix <- x$getInverse()
   if(!is.null(inversed_matrix)) {
@@ -72,7 +91,8 @@ cacheSolve <- function(x, ...) {
     return(inversed_matrix)
   }
   
-  ## The inversed matrix did not exist in cache. We create the inversed matrix by using solve and store the inversed matrix in cache in makeCacheMatrix function instanse.
+  ## The inversed matrix did not exist in cache. We create the inversed matrix by 
+  ## using solve and store the inversed matrix in cache in makeCacheMatrix function instanse.
   inversed_matrix <- solve(x$get())
   x$setInverse(inversed_matrix)
   return(x$getInverse())
